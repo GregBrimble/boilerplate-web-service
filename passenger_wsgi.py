@@ -2,7 +2,10 @@ import os
 import sys
 
 try:
-    from flask import Flask, render_template, send_file, Response    
+    from flask import Flask
+    import flask_login
+    from flask_restless import APIManager
+    from flask_sqlalchemy import SQLAlchemy
     import requests
 except ImportError:
     INTERP = "venv/bin/python"
