@@ -32,8 +32,12 @@ def index():
 def update():
     subprocess.call(['git', 'fetch', 'origin'])
     subprocess.call(['git', 'pull'])
-    subprocess.call(['mkdir', 'tmp'])
+    try:
+        subprocess.check_call(['mkdir', 'tmp'])
+    except subprocess.CalledProcessError, e:
+        pass
     subprocess.call(['touch', 'tmp/restart.txt'])
+    return "Please restart."
 
 
 @application.route("/big_update")
