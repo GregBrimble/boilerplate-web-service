@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 
 try:
@@ -25,6 +26,17 @@ application = Flask(__name__)
 @application.route("/")
 def index():
     return "Hello, world!"
+
+
+@application.route("/update")
+def update():
+    subprocess.call(['mkdir', 'tmp'])
+    subprocess.call(['touch', 'tmp/restart.txt'])
+
+
+@application.route("/big_update")
+def bigUpdate():
+    subprocess.call(['./setup.sh'])
 
 
 if __name__ == "__main__":
