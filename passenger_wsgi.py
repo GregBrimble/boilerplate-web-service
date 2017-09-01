@@ -30,6 +30,8 @@ def index():
 
 @application.route("/update")
 def update():
+    subprocess.call(['git', 'fetch', 'origin'])
+    subprocess.call(['git', 'pull'])
     subprocess.call(['mkdir', 'tmp'])
     subprocess.call(['touch', 'tmp/restart.txt'])
 
