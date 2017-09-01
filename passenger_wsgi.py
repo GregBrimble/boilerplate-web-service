@@ -43,6 +43,7 @@ def update():
 @application.route("/big_update")
 def bigUpdate():
     subprocess.call(['./setup.sh'])
+    return "Please restart."
 
 
 if __name__ == "__main__":
