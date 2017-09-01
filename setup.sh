@@ -1,4 +1,5 @@
 #!/bin/bash
+git fetch origin
 git pull
 rm -rf venv tmp
 virtualenv venv
