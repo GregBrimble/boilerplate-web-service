@@ -1,6 +1,9 @@
 import os
 import subprocess
 import sys
+import threading
+
+from meta import meta
 
 try:
     from flask import Flask
@@ -21,6 +24,7 @@ except ImportError:
 
 
 application = Flask(__name__)
+application.register_blueprint(meta, url_prefix="/meta")
 
 
 @application.route("/")
@@ -28,19 +32,9 @@ def index():
     return "Hello, world!"
 
 
-@application.route("/update")
-def update():
-    subprocess.call(['git', 'fetch', 'origin'])
-    subprocess.call(['git', 'pull'])
-    try:
-        subprocess.check_call(['mkdir', 'tmp'])
-    except subprocess.CalledProcessError, e:
-        pass
-    subprocess.call(['touch', 'tmp/restart.txt'])
-    return "Please restart."
 
 
-@application.route("/big_update")
+@application.route("/meta/big_update")
 def bigUpdate():
     subprocess.call(['./setup.sh'])
     return "Please restart."
