@@ -65,10 +65,10 @@ def verifyGitHubHook(request):
 
 @meta.route("/github_hook", methods=["POST"])
 def incomingGitHubHook():
-    payload = verifyGitHubHook(request)
-
     if request.headers.get("X-GitHub-Event") != "push":
         abort(501)
+
+    payload = verifyGitHubHook(request)
 
     buildRequired = False
 
