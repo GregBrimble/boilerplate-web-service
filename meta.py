@@ -1,7 +1,9 @@
 import datetime
+import hashlib
 import hmac
 import json
 import os
+import threading
 
 from flask import abort, Blueprint, request
 
@@ -50,7 +52,7 @@ def verifyGitHubHook(request):
     secret = config.get("github_hook", "secret")
 
     sha_name, signature = header_signature.split("=")
-    mac = hmac.new(str(secret), msg=request.data, digestmod=str(sha_name))
+    mac = hmac.new(str(secret), msg=request.data, digestmod=hashlib.sha1)
 
     if str(mac.hexdigest()) != str(signature):
         abort(403)
