@@ -8,7 +8,6 @@ import threading
 from flask import abort, Blueprint, request
 
 from upgrader import build, update
-from config import config
 
 meta = Blueprint('meta', __name__)
 
@@ -49,7 +48,7 @@ def verifyGitHubHook(request):
     if header_signature is None:
         abort(403)
 
-    secret = config.get("github_hook", "secret")
+    secret = os.getenv('GITHUB_HOOK_SECRET', '')
 
     sha_name, signature = header_signature.split("=")
     mac = hmac.new(str(secret), msg=request.data, digestmod=hashlib.sha1)
