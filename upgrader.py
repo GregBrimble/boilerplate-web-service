@@ -1,66 +1,72 @@
-import subprocess
+# Must be run as venv/bin/python
+
+import logging
+from os import getenv, makedirs, utime
+from os.path import dirname
+from pip import main
+from shutil import rmtree
+from subprocess import check_call, CalledProcessError
+
+from git import Repo
+
+
+# Variables
+# TODO: Document
+
+restarting_file_location = getenv('RESTARTING_FILE_LOCATION', 'tmp/restart.txt')
+github_remote_origin_name = getenv('GITHUB_REMOTE_ORIGIN_NAME', 'origin')
+github_remote_upstream_name = getenv('GITHUB_REMOTE_UPSTREAM_NAME', 'upstream')
+
+try:
+    repository = Repo('.')
+    repository.remotes[github_remote_origin_name]
+except git.exc.InvalidGitRepositoryError as e:
+    logging.error("Git repository `%s` does not exist." % e)
+except IndexError:
+    logging.error("Git remote `%s` does not exist." % github_remote_origin_name)
 
 
 # Helpers
 
-def touchTmpRestart():
-    # TODO: Add error catching
-    subprocess.check_call(['mkdir', '-p', 'tmp'])
-    subprocess.call(['touch', 'tmp/restart.txt'])
+def _restart_server():
+    logging.info('Restarting server...')
+    makedirs(dirname(restarting_file_location), exist_ok=True)
+    with open(restarting_file_location, 'a'):
+        utime(restarting_file_location, None)
     return True
 
-
-def gitFetchOriginAndPull():
-    # TODO: Add error catching
-    subprocess.call(['git', 'fetch', 'origin'])
-    subprocess.call(['git', 'pull'])
+def _install_requirements():
+    try:
+        main(['install', '-r', 'requirements.txt'])
+    except SystemExit:
+        logging.warning("Could not install requirements.")
+        return False
     return True
 
-
-def removeTemporaryFiles():
-    # TODO: Add error catching
-    subprocess.call(['rm', '-rf', 'venv', 'tmp'])
-    return True
-
-
-def buildVirtualEnv():
-    # TODO: Add error catching
-    subprocess.call(['./virtualenv_setup.sh'])      # TODO: Extract out
-    return True
-
-
-def removeGitUpstream():
-    # TODO: Add error catching
-    # TODO: Check if required first
-    subprocess.call(['git', 'remote', 'rm', 'upstream'])
-    return True
-
-
-def addGitUpstream():
-    # TODO: Add error catching
-    subprocess.call(['git', 'remote', 'add', 'upstream', 'git@github.com:GregBrimble/boilerplate-web-service.git'])
+def _git_pull():
+    try:
+        repository.remotes[github_remote_origin_name].pull()
+    except git.exc.GitCommandError:
+        logging.error("Could not pull from git remote `%s`" % repository.remotes[github_remote_origin_name].url)
+        return False
     return True
 
 
 # Public functions
 
-def update():
+def upgrade(requirements_required=False):
     """
-    Simply fetches origin/master, pulls the latest changes, and restarts the server.
-    If any big changes have been made, it might not work (e.g. added a new dependancy).
+    Pull from `origin/master`, and restart the server. Optionally, install requirements as well.
     """
-    gitFetchOriginAndPull()
-    touchTmpRestart()
-    return True
+    if requirements_required:
+        logging.info("Upgrading with requirements...")
+    else:
+        logging.info("Upgrading without requirements...")
 
+    _git_pull()
+    if requirements_required:
+        _install_requirements()
+    _restart_server()
 
-def build():
-    """
-    Fetches origin/master, pulls the latest changes, rebuilds the virtual environment (collecting new dependancies), and re-adds the upstream repo.
-    """
-    gitFetchOriginAndPull()
-    removeTemporaryFiles()
-    buildVirtualEnv()
-    removeGitUpstream()
-    addGitUpstream()
+    logging.info("Upgrade complete.")
     return True

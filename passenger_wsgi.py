@@ -8,19 +8,24 @@ try:
     import flask_login
     from flask_restless import APIManager
     from flask_sqlalchemy import SQLAlchemy
+    from flask_migrate import Migrate
+
     import requests
+
+    from celery import Celery
 
     from meta import meta
 except ImportError:
-    INTERP = "venv/bin/python"
+    interpreter_location = "venv/bin/python"
 
-    if os.path.relpath(sys.executable, os.getcwd()) != INTERP:
+    if os.path.relpath(sys.executable, os.getcwd()) != interpreter_location:
         try:
-            os.execl(INTERP, INTERP, *sys.argv)
+            print("Switching interpreter to `%s`..." % interpreter_location)
+            os.execl(interpreter_location, interpreter_location, *sys.argv)
         except OSError:
-            sys.exit("Environment not build. Run the following `:~$ python -c 'from upgrader import build; build();'`")
+            sys.exit("Virtual environment `%s` not found." % interpreter_location)
     else:
-        sys.exit("Environment not build. Run the following `:~$ python -c 'from upgrader import build; build();'`")
+        sys.exit("Requirements not found in virtual environment `%s`" % interpreter_location)
 
 
 application = Flask(__name__)

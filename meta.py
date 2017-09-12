@@ -2,18 +2,21 @@ import datetime
 import hashlib
 import hmac
 import json
+import logging
 import os
 import threading
 
-from flask import abort, Blueprint, request
+from flask import abort, Blueprint, jsonify, request
 
-from upgrader import build, update
+from upgrader import upgrade
 
 meta = Blueprint('meta', __name__)
 
+auto_deploy_method = os.getenv('WS_AUTO_DEPLOY')
+
 
 @meta.route("/")
-def stats():
+def statistics():
     # TODO: Refactor, and if possible, have dynamic status for inprogress updates.
 
     try:
@@ -22,61 +25,75 @@ def stats():
         last_update_timestamp = 0
 
     try:
-        last_build_time = os.path.getctime("venv")
+        last_build_timestamp = os.path.getctime("venv")
     except OSError:
-        last_build_time = 0
+        last_build_timestamp = 0
 
-    meta_info = {
-        "last_update_time": datetime.datetime.fromtimestamp(last_update_timestamp).isoformat(),
-        "last_build_time": datetime.datetime.fromtimestamp(last_build_time).isoformat()
-    }
-    return json.dumps(meta_info)
-
-
-def queueUpdate():
-    threading.Thread(target=update).start()
-    return "Update queued. You can see when the last complete update was at GET /meta."
+    return jsonify(
+        last_update_time=datetime.datetime.fromtimestamp(last_update_timestamp).isoformat(),
+        last_build_time=datetime.datetime.fromtimestamp(last_build_timestamp).isoformat()
+    )
 
 
-def queueBuild():
-    threading.Thread(target=build).start()
-    return "Build queued. Please note this takes many minutes to complete. Get yourself some tea. You can see when the last complete update was at GET /meta."
+def queueUpgrade(requirements_required):
+    threading.Thread(target=upgrade, args=(requirements_required,)).start()
+    if requirements_required:
+        return "Upgrade queued, with requirements. Please note this may take several minutes to complete. You can see when the last complete upgrade was at GET /meta."
+    else:
+        return "Upgrade queued. You can see when the last complete upgrade was at GET /meta."
 
 
 def verifyGitHubHook(request):
     header_signature = request.headers.get("X-Hub-Signature")
-    if header_signature is None:
-        abort(403)
-
-    secret = os.getenv('GITHUB_HOOK_SECRET', '')
-
-    sha_name, signature = header_signature.split("=")
-    mac = hmac.new(str(secret), msg=request.data, digestmod=hashlib.sha1)
-
-    if str(mac.hexdigest()) != str(signature):
+    secret = os.getenv('WS_AUTO_DEPLOY_GITHUB_HOOK_SECRET')
+    if header_signature is None or secret is None:
+        logging.error("GitHub Hook Secret is not set.")
         abort(403)
     else:
-        try:
+        header_signature = str(header_signature)
+        secret = str(secret)
+
+    sha_name, signature = header_signature.split("=")
+    mac = hmac.new(secret, msg=request.data, digestmod=hashlib.sha1)
+
+    if hmac.compare_digest(mac.hexdigest(), signature):
+        logging.error("Bad GitHub Hook Secret Signature.")
+        abort(403)
+    else:
+        if request.is_json():
             return request.get_json()
-        except:     # TODO: Be more specific
+        else:
+            logging.error("Bad GitHub Hook Post Data.")
             abort(400)
 
 
 @meta.route("/github_hook", methods=["POST"])
 def incomingGitHubHook():
-    if request.headers.get("X-GitHub-Event") != "push":
+    logging.critical(os.getenv("WS_AUTO_DEPLOY"))
+    if auto_deploy_method != "GITHUB_HOOK":
+        logging.error("GitHub Hook is not set as the automatic deployment method.")
+        abort(403)
+
+    if request.headers.get("X-GitHub-Event") == "ping":
+        logging.debug("GitHub Hook Ping Event received. Ponging...")
+        return "pong"
+    elif request.headers.get("X-GitHub-Event") != "push":
+        logging.error("Bad GitHub Hook Event received.")
         abort(501)
 
     payload = verifyGitHubHook(request)
 
-    buildRequired = False
+    try:
+        commits = payload['commits']
+        requirements_required = False
 
-    commits = payload['commits']
-    for commit in commits:
-        if "requirements.txt" in commit['modified']:
-            buildRequired = True
+        for commit in commits:
+            if "requirements.txt" in commit['modified']:
+                requirements_required = True
+                break
+    except KeyError:
+        logging.error("Bad GitHub Hook Post Data.")
+        abort(400)
 
-    if buildRequired:
-        return queueBuild()
-    else:
-        return queueUpdate()
+    logging.debug("Queueing upgrade...")
+    return queueUpgrade(requirements_required)
