@@ -3,7 +3,6 @@
 import logging
 from os import getenv, makedirs, utime
 from os.path import dirname
-from pip import main
 from shutil import rmtree
 from subprocess import check_call, CalledProcessError
 
@@ -37,8 +36,8 @@ def _restart_server():
 
 def _install_requirements():
     try:
-        main(['install', '-r', 'requirements.txt'])
-    except SystemExit:
+        check_call(['pip', 'install', '-r', 'requirements.txt'])
+    except CalledProcessError:
         logging.warning("Could not install requirements.")
         return False
     return True

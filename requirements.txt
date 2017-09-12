@@ -10,11 +10,8 @@ Flask-Login==0.4.0
 Flask-Migrate==2.1.1
 Flask-Restless==0.17.0
 Flask-SQLAlchemy==2.2
-gevent==1.2.2
 gitdb2==2.0.2
 GitPython==2.1.5
-greenlet==0.4.12
-grequests==0.3.0
 gunicorn==19.7.1
 idna==2.6
 itsdangerous==0.24

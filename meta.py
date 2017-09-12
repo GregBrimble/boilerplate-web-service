@@ -51,16 +51,16 @@ def verifyGitHubHook(request):
         abort(403)
     else:
         header_signature = str(header_signature)
-        secret = str(secret)
+        secret = str.encode(secret)
 
     sha_name, signature = header_signature.split("=")
     mac = hmac.new(secret, msg=request.data, digestmod=hashlib.sha1)
 
-    if hmac.compare_digest(mac.hexdigest(), signature):
+    if not hmac.compare_digest(mac.hexdigest(), signature):
         logging.error("Bad GitHub Hook Secret Signature.")
         abort(403)
     else:
-        if request.is_json():
+        if request.is_json:
             return request.get_json()
         else:
             logging.error("Bad GitHub Hook Post Data.")
@@ -69,7 +69,6 @@ def verifyGitHubHook(request):
 
 @meta.route("/github_hook", methods=["POST"])
 def incomingGitHubHook():
-    logging.critical(os.getenv("WS_AUTO_DEPLOY"))
     if auto_deploy_method != "GITHUB_HOOK":
         logging.error("GitHub Hook is not set as the automatic deployment method.")
         abort(403)
