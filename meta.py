@@ -22,6 +22,7 @@ auto_deploy_method = os.getenv('WS_AUTO_DEPLOY')
 @meta.route("/")
 def statistics():
     # TODO: Refactor, and if possible, have dynamic status for inprogress updates.
+    # TODO: Fix on Heroku
 
     try:
         last_update_timestamp = os.path.getctime("tmp/restart.txt")
