@@ -1,3 +1,7 @@
+# TODO: Use Celery to properly manage updates, and provide dyanmic updates as everything progresses.
+# TODO: Integrate with GitLab Webhooks
+# TODO: Integrate with GitLab <-> Heroku
+
 import datetime
 import hashlib
 import hmac
