@@ -6,7 +6,7 @@ from os.path import dirname
 from shutil import rmtree
 from subprocess import check_call, CalledProcessError
 
-from git import Repo
+import git
 
 
 # Variables
@@ -17,7 +17,7 @@ github_remote_origin_name = getenv('GITHUB_REMOTE_ORIGIN_NAME', 'origin')
 github_remote_upstream_name = getenv('GITHUB_REMOTE_UPSTREAM_NAME', 'upstream')
 
 try:
-    repository = Repo('.')
+    repository = git.Repo('.')
     repository.remotes[github_remote_origin_name]
 except git.exc.InvalidGitRepositoryError as e:
     logging.error("Git repository `%s` does not exist." % e)
