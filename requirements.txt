@@ -10,6 +10,7 @@ Flask-Login==0.4.0
 Flask-Migrate==2.1.1
 Flask-Restless==0.17.0
 Flask-SQLAlchemy==2.2
+Flask-WTF==0.14.2
 gitdb2==2.0.2
 GitPython==2.1.5
 gunicorn==19.7.1
@@ -31,3 +32,4 @@ SQLAlchemy==1.1.14
 urllib3==1.22
 vine==1.1.4
 Werkzeug==0.12.2
+WTForms==2.1
