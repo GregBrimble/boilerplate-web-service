@@ -1,10 +1,15 @@
 # Boilerplate Web Service
 My bare minimum web service deployment
 
+## Dependencies
+* Python3.6
+* pip3
+
 ## Setup
 1. Clone this repository to wherever you want to deploy.
-2. Run `./setup.sh` to build dependencies into `venv`, and will set the `git remote upstream` to point to this repository.
-3. Activate any of the features below.
+2. `$ pip3 install virtualenv`
+3. Run `./setup.sh` to build dependencies into `venv`, and will set the `git remote upstream` to point to this repository.
+4. Activate any of the features below.
 
 ## Features
 
@@ -15,13 +20,13 @@ Automatic deployment allows you to update a deployment with every push to a GitH
 1. Visit https://github.com/YOUR_GITHUB_USERNAME/YOUR_GITHUB_REPOSITORY/settings/hooks/new.
 2. Enter the values below:
 
-   | Option                                               | Value                                                                                                             |
-   | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-   | Payload URL                                          | Deployment URL + `/meta/github_hook` (e.g. `https://gregbrimble.com/meta/github_hook`)                            |
-   | Content type                                         | `application/json`                                                                                                |
-   | Secret                                               | Run the following in your terminal: `ruby -rsecurerandom -e 'puts SecureRandom.hex(20)'`, and put the output here |
-   | Which events would you like to trigger this webhook? | Just the `push` event.                                                                                            |
-   | Active                                               | Checked                                                                                                           |
+  | Option                                               | Value                                                                                                               |
+  |------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+  | Payload URL                                          | Deployment URL + `meta/github_hook` (e.g. https://gregbrimble.com/meta/github_hook)                                |
+  | Content type                                         | `application/json`                                                                                                  |
+  | Secret                                               | Run the following in your terminal: `$ ruby -rsecurerandom -e 'puts SecureRandom.hex(20)'`, and put the output here |
+  | Which events would you like to trigger this webhook? | Just the `push` event.                                                                                              |
+  | Active                                               | Checked                                                                                                             |
 
 3. Set the following environment variables on the deployed machine:
    ```ini
