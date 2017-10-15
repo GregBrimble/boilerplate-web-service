@@ -35,7 +35,7 @@ Automatic deployment allows you to update a deployment with every push to a GitH
    ```
    where `mySuper5ecretSecr3t!` is the `Secret` you generated earlier.
 
-### Heroku
+#### Heroku
 1. Follow the steps outlined for [Automatic deploys](https://devcenter.heroku.com/articles/github-integration#automatic-deploys) in [this guide in Heroku's own documentation](https://devcenter.heroku.com/articles/github-integration).
 2. Set the following environment variables on the deployed machine:
    ```ini
