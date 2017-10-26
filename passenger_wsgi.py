@@ -1,10 +1,12 @@
+import binascii
+import logging
 import os
 import subprocess
 import sys
 import threading
 
 try:
-    from flask import Flask
+    from flask import Flask, abort, current_app, request, redirect, url_for
     import flask_login
     from flask_restless import APIManager
     from flask_sqlalchemy import SQLAlchemy
@@ -16,6 +18,7 @@ try:
     from celery import Celery
 
     from meta import meta
+    from auth import login_exempt, register_google_blueprint
 except ImportError:
     interpreter_location = "venv/bin/python"
 
@@ -30,7 +33,11 @@ except ImportError:
 
 
 application = Flask(__name__)
+application.secret_key = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(24)))
+
 application.register_blueprint(meta, url_prefix="/meta")
+
+register_google_blueprint(application, whitelist=True, api_mode=False)
 
 
 @application.route("/")
