@@ -25,14 +25,14 @@ def statistics():
     # TODO: Fix on Heroku
 
     try:
-        last_update_timestamp = os.path.getctime("tmp/restart.txt")
-    except OSError:
-        last_update_timestamp = 0
-
-    try:
         last_build_timestamp = os.path.getctime("venv")
     except OSError:
         last_build_timestamp = 0
+
+    try:
+        last_update_timestamp = os.path.getctime("tmp/restart.txt")
+    except OSError:
+        last_update_timestamp = last_build_timestamp
 
     return jsonify(
         last_update_time=datetime.datetime.fromtimestamp(last_update_timestamp).isoformat(),
