@@ -13,12 +13,11 @@ def require_domain():
 
     response = google.get("/plus/v1/people/me")
     if response.status_code != requests.codes.ok:
-        return str(response.status_code) + str(response.content)
         abort(502)
 
     # Assert the user is a part of Administrate
     try:
-        if response.json()['g_domain'] != g_domain:
+        if response.json()['domain'] != g_domain:
             abort(403)
     except KeyError:
         abort(403)
@@ -50,6 +49,7 @@ def require_authentication():
 
 
 def register_google_blueprint(application, whitelist=False, api_mode=False, domain=None):
+
     application.register_blueprint(
         make_google_blueprint(
             client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID"),
