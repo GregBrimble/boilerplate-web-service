@@ -11,6 +11,11 @@ g_domain = None
 def require_domain():
     global g_domain
 
+    # Exempt from requiring authentication
+    view = current_app.view_functions.get(request.endpoint)
+    if getattr(view, 'login_exempt', False) or request.endpoint in ["google.login", "google.authorized"]:
+        return
+
     response = google.get("/plus/v1/people/me")
     if response.status_code != requests.codes.ok:
         abort(502)
