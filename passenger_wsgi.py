@@ -37,7 +37,7 @@ application.secret_key = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(24)
 
 application.register_blueprint(meta, url_prefix="/meta")
 
-register_google_blueprint(application, whitelist=True, api_mode=False)
+register_google_blueprint(application, whitelist=True, api_mode=False, domain="administrate.co")
 
 
 @application.route("/")
