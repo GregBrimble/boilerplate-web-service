@@ -5,6 +5,7 @@ import subprocess
 import sys
 import threading
 
+# Try to import all requirements
 try:
     from flask import Flask, abort, current_app, request, redirect, url_for
     import flask_login
@@ -15,11 +16,10 @@ try:
 
     import requests
 
-    from celery import Celery
-
     from meta import meta
-    from auth import login_exempt, register_google_blueprint
+    from auth.google import google, GoogleAuthentication
 except ImportError:
+    # If it fails, we must not be in the virtual environment. Let's move there...
     interpreter_location = "venv/bin/python"
 
     if os.path.relpath(sys.executable, os.getcwd()) != interpreter_location:
@@ -37,13 +37,20 @@ application.secret_key = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(24)
 
 application.register_blueprint(meta, url_prefix="/meta")
 
-register_google_blueprint(application, whitelist=True, api_mode=False)
+my_google_authenticator = GoogleAuthentication(application, whitelist=True)
 
 
 @application.route("/")
+@my_google_authenticator.login_exempt
 def index():
     return "Hello, world!"
 
+
+@application.route("/secret")
+def secret():
+    # if not google.authorized:
+    #     redirect(url_for("google.login"))
+    return "Hello, secret!"
 
 if __name__ == "__main__":
     application.run()
