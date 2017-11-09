@@ -18,6 +18,7 @@ try:
 
     from meta import meta
     from auth.google import google, GoogleAuthentication
+    # TODO: from auth.sentinel import SentinelAuthentication
 except ImportError:
     # If it fails, we must not be in the virtual environment. Let's move there...
     interpreter_location = "venv/bin/python"
@@ -47,9 +48,8 @@ def index():
 
 
 @application.route("/secret")
+# @my_google_authenticator.login_required
 def secret():
-    # if not google.authorized:
-    #     redirect(url_for("google.login"))
     return "Hello, secret!"
 
 if __name__ == "__main__":
