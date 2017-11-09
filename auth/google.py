@@ -3,6 +3,7 @@ import os
 
 from flask import abort, current_app, redirect, request, url_for
 from flask_dance.contrib.google import google, make_google_blueprint
+from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError, TokenExpiredError
 import requests
 
 from auth.base import Protection
@@ -60,16 +61,21 @@ class GoogleAuthentication(Protection):
         if not self.protected_endpoint():
             view = current_app.view_functions.get(request.endpoint)
 
-            if self.whitelisted:
-                # If view is @login_exempt, or they are logged in, return view
-                if getattr(view, 'login_exempt', False) or self.is_authorized():
-                    return
-                else:
-                    return redirect(url_for("google.login"))
+            # Pretty sure there is a bug in `flask_dance` which isn't expiring and auto-renewing oauth tokens, so...
+            try:
+                if self.whitelisted:
+                    # If view is @login_exempt, or they are logged in, return view
+                    if getattr(view, 'login_exempt', False) or self.is_authorized():
+                        return
+                    else:
+                        return redirect(url_for("google.login"))
 
-            else:
-                # If view is @login_required, and they are not logged in, return "google.login"
-                if getattr(view, 'login_required', False) and not self.is_authorized():
-                    return redirect(url_for("google.login"))
                 else:
-                    return
+                    # If view is @login_required, and they are not logged in, return "google.login"
+                    if getattr(view, 'login_required', False) and not self.is_authorized():
+                        return redirect(url_for("google.login"))
+                    else:
+                        return
+            except (InvalidClientIdError, TokenExpiredError):
+                logging.warning("Token has probably expired...")
+                redirect(url_for("google.login"))
