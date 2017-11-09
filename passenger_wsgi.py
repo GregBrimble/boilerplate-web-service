@@ -10,6 +10,7 @@ try:
     from flask import Flask, abort, current_app, request, redirect, url_for
     import flask_login
     from flask_restless import APIManager
+    from flask_sslify import SSLify
     from flask_sqlalchemy import SQLAlchemy
     from flask_migrate import Migrate
     from flask_wtf import FlaskForm
@@ -35,6 +36,7 @@ except ImportError:
 
 application = Flask(__name__)
 application.secret_key = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(24)))
+sslify = SSLify(application)
 
 application.register_blueprint(meta, url_prefix="/meta")
 
