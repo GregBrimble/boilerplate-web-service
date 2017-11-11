@@ -19,7 +19,7 @@ try:
 
     from meta import meta
     from auth.google import google, GoogleAuthentication
-    # TODO: from auth.sentinel import SentinelAuthentication
+    from auth.sentinel import SentinelAuthentication
 except ImportError:
     # If it fails, we must not be in the virtual environment. Let's move there...
     interpreter_location = "venv/bin/python"
@@ -40,17 +40,20 @@ sslify = SSLify(application)
 
 application.register_blueprint(meta, url_prefix="/meta")
 
-my_google_authenticator = GoogleAuthentication(application, whitelist=True)
+# my_google_authenticator = GoogleAuthentication(application, whitelist=True)
+# my_sentinel_authenticator = SentinelAuthentication(application, whitelist=True)
 
 
 @application.route("/")
-@my_google_authenticator.login_exempt
+# @my_google_authenticator.login_exempt
+# @my_sentinel_authenticator.login_exempt
 def index():
     return "Hello, world!"
 
 
 @application.route("/secret")
 # @my_google_authenticator.login_required
+# @my_sentinel_authenticator.login_required
 def secret():
     return "Hello, secret!"
 

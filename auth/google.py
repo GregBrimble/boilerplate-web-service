@@ -62,6 +62,7 @@ class GoogleAuthentication(Protection):
             view = current_app.view_functions.get(request.endpoint)
 
             # Pretty sure there is a bug in `flask_dance` which isn't expiring and auto-renewing oauth tokens, so...
+            # TODO: Investigate and implement proper fix
             try:
                 if self.whitelisted:
                     # If view is @login_exempt, or they are logged in, return view
