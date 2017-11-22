@@ -14,6 +14,7 @@ try:
     from flask_sqlalchemy import SQLAlchemy
     from flask_migrate import Migrate
     from flask_wtf import FlaskForm
+    import wtforms_components
 
     import requests
 
