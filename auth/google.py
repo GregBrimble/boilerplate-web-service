@@ -37,6 +37,7 @@ class GoogleAuthentication(Protection):
 
 
     def is_authorized(self):
+        
         if google.authorized:
             if self.domain is not None:
                 response = google.get("/plus/v1/people/me")
@@ -62,21 +63,17 @@ class GoogleAuthentication(Protection):
             view = current_app.view_functions.get(request.endpoint)
 
             # Pretty sure there is a bug in `flask_dance` which isn't expiring and auto-renewing oauth tokens, so...
-            # TODO: Investigate and implement proper fix
-            try:
-                if self.whitelisted:
-                    # If view is @login_exempt, or they are logged in, return view
-                    if getattr(view, 'login_exempt', False) or self.is_authorized():
-                        return
-                    else:
-                        return redirect(url_for("google.login"))
-
+            # TODO: Investigate and implement fix
+            if self.whitelisted:
+                # If view is @login_exempt, or they are logged in, return view
+                if getattr(view, 'login_exempt', False) or self.is_authorized():
+                    return
                 else:
-                    # If view is @login_required, and they are not logged in, return "google.login"
-                    if getattr(view, 'login_required', False) and not self.is_authorized():
-                        return redirect(url_for("google.login"))
-                    else:
-                        return
-            except (InvalidClientIdError, TokenExpiredError):
-                logging.warning("Token has probably expired...")
-                redirect(url_for("google.login"))
+                    return redirect(url_for("google.login"))
+
+            else:
+                # If view is @login_required, and they are not logged in, return "google.login"
+                if getattr(view, 'login_required', False) and not self.is_authorized():
+                    return redirect(url_for("google.login"))
+                else:
+                    return

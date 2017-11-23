@@ -14,9 +14,9 @@ try:
     from flask_sqlalchemy import SQLAlchemy
     from flask_migrate import Migrate
     from flask_wtf import FlaskForm
+    from oauthlib.oauth2 import LegacyApplicationClient
+    from requests_oauthlib import OAuth2Session
     import wtforms_components
-
-    import requests
 
     from meta import meta
     from auth.google import google, GoogleAuthentication
@@ -37,12 +37,19 @@ except ImportError:
 
 application = Flask(__name__)
 application.secret_key = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(24)))
+application.config['SENTINEL_MONGO_URI'] = os.getenv("SENTINEL_MONGO_URI")
+application.config['SENTINEL_REDIS_URL'] = os.getenv("SENTINEL_REDIS_URL")
+application.config['REDIS_URL'] = os.getenv("SENTINEL_REDIS_URL")
+
 sslify = SSLify(application)
 
 application.register_blueprint(meta, url_prefix="/meta")
 
 # my_google_authenticator = GoogleAuthentication(application, whitelist=True)
 # my_sentinel_authenticator = SentinelAuthentication(application, whitelist=True)
+
+# client = OAuth2Session(client=LegacyApplicationClient(os.getenv("OAUTH_CLIENT_ID")))
+# token = client.fetch_token(token_url=os.getenv("OAUTH_TOKEN_URL", username=os.getenv("OAUTH_USERNAME"), password=os.getenv("OAUTH_PASSWORD"), client_id=os.getenv("OAUTH_CLIENT_ID")))
 
 
 @application.route("/")
@@ -57,6 +64,7 @@ def index():
 # @my_sentinel_authenticator.login_required
 def secret():
     return "Hello, secret!"
+
 
 if __name__ == "__main__":
     application.run()

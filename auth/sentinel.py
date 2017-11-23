@@ -25,8 +25,6 @@ class SentinelAuthentication(Protection):
 
     def authentication(self):
 
-        logging.warning(request.path)
-
         if not self.protected_endpoint():
             view = current_app.view_functions.get(request.endpoint)
 
