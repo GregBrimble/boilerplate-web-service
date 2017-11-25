@@ -1,6 +1,6 @@
 import logging
 
-from flask import abort, current_app, redirect, request, url_for
+from flask import abort, current_app, jsonify, redirect, request, url_for
 from flask_sentinel import ResourceOwnerPasswordCredentials, oauth
 
 from auth.base import Protection
@@ -31,11 +31,11 @@ class SentinelAuthentication(Protection):
             if self.whitelisted:
                 # If view is @login_exempt, or they are logged in, return view
                 if not getattr(view, 'login_exempt', False):
-                    oauth.require_oauth()(view)()
+                    current_app.view_functions[request.endpoint] = oauth.require_oauth()(view)
 
             else:
                 # If view is @login_required, and they are not logged in, return "google.login"
                 if getattr(view, 'login_required', False):
-                    oauth.require_oauth()(view)()
+                    current_app.view_functions[request.endpoint] = oauth.require_oauth()(view)
 
         return
