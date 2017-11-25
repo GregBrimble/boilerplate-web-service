@@ -1,5 +1,3 @@
-from functools import wraps
-
 class Protection:
 
     whitelisted = None

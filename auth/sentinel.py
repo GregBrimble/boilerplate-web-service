@@ -1,6 +1,4 @@
-import logging
-
-from flask import abort, current_app, jsonify, redirect, request, url_for
+from flask import current_app, request
 from flask_sentinel import ResourceOwnerPasswordCredentials, oauth
 
 from auth.base import Protection

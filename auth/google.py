@@ -1,4 +1,3 @@
-import logging
 import os
 
 from flask import abort, current_app, redirect, request, url_for
@@ -37,7 +36,7 @@ class GoogleAuthentication(Protection):
 
 
     def is_authorized(self):
-        
+
         if google.authorized:
             if self.domain is not None:
                 response = google.get("/plus/v1/people/me")
