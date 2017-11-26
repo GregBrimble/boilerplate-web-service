@@ -37,23 +37,26 @@ class GoogleAuthentication(Protection):
 
     def is_authorized(self):
 
-        if google.authorized:
-            if self.domain is not None:
-                response = google.get("/plus/v1/people/me")
-                if response.status_code != requests.codes.ok:
-                    abort(502)
+        try:
+            if google.authorized:
+                if self.domain is not None:
+                    response = google.get("/plus/v1/people/me")
+                    if response.status_code != requests.codes.ok:
+                        abort(502)
 
-                try:
-                    if response.json()['domain'] != self.domain:
+                    try:
+                        if response.json()['domain'] != self.domain:
+                            abort(403)
+                            return False
+                    except KeyError:
                         abort(403)
                         return False
-                except KeyError:
-                    abort(403)
-                    return False
 
-            return True
-        else:
-            return False
+                return True
+            else:
+                return False
+        except (InvalidClientIdError, TokenExpiredError):
+            return redirect(url_for("google.login"))
 
 
     def authentication(self):
