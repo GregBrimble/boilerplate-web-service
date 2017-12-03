@@ -45,7 +45,7 @@ sslify = SSLify(application)
 
 application.register_blueprint(meta, url_prefix="/meta")
 
-# my_google_authenticator = GoogleAuthentication(application, whitelist=True)
+my_google_authenticator = GoogleAuthentication(application, whitelist=True)
 # my_sentinel_authenticator = SentinelAuthentication(application, whitelist=True)
 
 # client = OAuth2Session(client=LegacyApplicationClient(os.getenv("OAUTH_CLIENT_ID")))

@@ -23,6 +23,7 @@ class GoogleAuthentication(Protection):
             make_google_blueprint(
                 client_id=(os.getenv("GOOGLE_OAUTH_CLIENT_ID") if oauth_client_id is None else oauth_client_id),
                 client_secret=(os.getenv("GOOGLE_OAUTH_CLIENT_SECRET") if oauth_client_secret is None else oauth_client_secret),
+                offline=True,
                 scope=["profile", "email"]
             ),
             url_prefix="/login"
