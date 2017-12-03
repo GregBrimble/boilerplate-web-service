@@ -19,7 +19,6 @@ try:
     import wtforms_components
 
     from meta import meta
-    from session_helper import check_session_version
     from auth.google import google, GoogleAuthentication
     from auth.sentinel import SentinelAuthentication
 except ImportError:
@@ -41,8 +40,6 @@ application.secret_key = os.getenv("SECRET_KEY", binascii.hexlify(os.urandom(24)
 application.config['SENTINEL_MONGO_URI'] = os.getenv("SENTINEL_MONGO_URI")
 application.config['SENTINEL_REDIS_URL'] = os.getenv("SENTINEL_REDIS_URL")
 application.config['REDIS_URL'] = os.getenv("SENTINEL_REDIS_URL")
-
-application.before_request(check_session_version)
 
 sslify = SSLify(application)
 
